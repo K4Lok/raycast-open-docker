@@ -18,8 +18,12 @@ export default async function Command() {
       return;
     }
 
-    // 2. Use activate command to properly bring Docker to foreground and switch desktops
-    const script = `tell application "Docker Desktop" to reopen`;
+    // 2. Use reopen to ensure Docker opens even when hidden, then activate to switch desktops
+    const script = `
+      tell application "Docker Desktop" to reopen
+      delay 0.5
+      tell application "Docker Desktop" to activate
+    `;
 
     exec(`osascript -e '${script}'`, async (error) => {
       if (error) {
