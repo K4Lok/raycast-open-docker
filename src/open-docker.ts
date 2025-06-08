@@ -5,9 +5,7 @@ export default async function Command() {
   try {
     // 1. Check if Docker Desktop is installed using Raycast API
     const applications = await getApplications();
-    const dockerApp = applications.find(
-      (app) => app.bundleId === "com.docker.docker"
-    );
+    const dockerApp = applications.find((app) => app.bundleId === "com.docker.docker");
 
     if (!dockerApp) {
       await showToast({
@@ -34,7 +32,7 @@ export default async function Command() {
         });
         return;
       }
-      
+
       await showToast({
         style: Toast.Style.Success,
         title: "Docker Desktop is opening",
@@ -43,7 +41,6 @@ export default async function Command() {
     });
 
     await closeMainWindow();
-
   } catch (e) {
     await showToast({
       style: Toast.Style.Failure,
