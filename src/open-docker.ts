@@ -1,16 +1,50 @@
-import { showHUD } from "@raycast/api";
+import { closeMainWindow, getApplications, showToast, Toast } from "@raycast/api";
 import { exec } from "child_process";
 
 export default async function Command() {
-  // The osascript command you discovered
-  const script = `tell application "System Events" to tell application "Docker Desktop" to reopen`;
+  try {
+    // 1. Check if Docker Desktop is installed using Raycast API
+    const applications = await getApplications();
+    const dockerApp = applications.find(
+      (app) => app.bundleId === "com.docker.docker"
+    );
 
-  exec(`osascript -e '${script}'`, async (error) => {
-    if (error) {
-      await showHUD("❌ Failed to open Docker Desktop");
-      console.error(`exec error: ${error}`);
+    if (!dockerApp) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Docker Desktop is not installed",
+        message: "Please install Docker Desktop to use this command.",
+      });
       return;
     }
-    await showHUD("✅ Docker Dashboard is opening...");
-  });
+
+    // 2. Use activate command to properly bring Docker to foreground and switch desktops
+    const script = `tell application "Docker Desktop" to reopen`;
+
+    exec(`osascript -e '${script}'`, async (error) => {
+      if (error) {
+        await showToast({
+          style: Toast.Style.Failure,
+          title: "Failed to open Docker Desktop",
+          message: error.message,
+        });
+        return;
+      }
+      
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Docker Desktop is opening",
+        message: "Switching to Docker Desktop...",
+      });
+    });
+
+    await closeMainWindow();
+
+  } catch (e) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "An unexpected error occurred",
+      message: e instanceof Error ? e.message : "Unknown error",
+    });
+  }
 }
