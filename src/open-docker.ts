@@ -25,7 +25,7 @@ export default async function Command() {
 
     try {
       await runAppleScript(script);
-      
+
       await showToast({
         style: Toast.Style.Success,
         title: "Docker Desktop is opening",
